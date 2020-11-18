@@ -9,24 +9,75 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## GitHub Documents
-
-This is an R Markdown format used for publishing markdown documents to GitHub. When you click the **Knit** button all R code chunks are run and a markdown file (.md) suitable for publishing to GitHub is generated.
-
-## Including Code
-
-You can include R code in the document as follows:
-
-```{r cars}
-summary(cars)
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(purrr)
+library(stringr)
 ```
 
-## Including Plots
+## Problem 1
 
-You can also embed plots, for example:
+```{r cars message=FALSE, warning=FALSE}
+homicide_df = 
+  read_csv("./data/homicide_data.csv") %>%
+  mutate( city_state = str_c(city, state, sep = "_"),
+    resolved = case_when(
+      disposition == "Closed without arrest" ~ "unsolved",
+      disposition == "Open/No arrest" ~ "unsolved",
+      disposition == "Closed by arrest" ~ "solved",
+    )
+  ) %>%
+  filter(city_state != "Tulsa_AL") %>%
+  select(city_state, resolved)
+```
+looking at the table
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+
+```{r}
+agg_df = homicide_df %>%
+  group_by(city_state) %>%
+  summarize(hom_total = n(),
+            hom_unsolved = sum(resolved == "unsolved")
+            )
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+prop test on single city
+
+```{r}
+
+prop.test(
+  agg_df %>% filter(city_state == "Baltimore_MD") %>% pull(hom_unsolved),
+  agg_df %>% filter(city_state == "Baltimore_MD") %>% pull(hom_total)) %>%
+  broom::tidy()
+
+
+results_df = 
+  agg_df%>%
+  mutate(
+    prop_tests = map2(.x = hom_unsolved, .y = hom_total, ~prop.test(x=.x, n= .y)), tidy_tests = map(.x = prop_tests, ~broom::tidy(.x))
+  ) %>%
+  select(-prop_tests) %>%
+  unnest(tidy_tests) %>%
+  select(city_state, estimate, conf.low, conf.high)
+```
+
+
+```{r}
+results_df %>%
+  mutate(city_state = fct_reorder(city_state, estimate)) %>%
+  ggplot(aes(x = city_state, y= estimate)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+```
+
+## Problem 2
+
+
+
+## Problem 3
+
+```{r}
+
+```
+
