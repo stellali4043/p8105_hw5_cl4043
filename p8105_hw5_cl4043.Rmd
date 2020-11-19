@@ -141,7 +141,7 @@ avg_results <- sim_results %>%
   group_by(mu) %>%
   summarize(mean_mu_hat = mean(estimate)) %>%
   ggplot(aes(x = mu, y = mean_mu_hat)) +
-  geom_boxplot() +
+  geom_point() +
   labs(
     x = "avg_results")
 
@@ -150,9 +150,10 @@ avg_rejected_results <- sim_results %>%
   group_by(mu) %>%
   summarize(mean_mu_hat = mean(estimate)) %>%
   ggplot(aes(x = mu, y = mean_mu_hat)) +
-  geom_boxplot() +
+  geom_point() +
   labs(
     x = "avg_rejected_results")
 
 avg_results + avg_rejected_results
 ```
+From the avg_rejected_results, the sample average mu across tests for which the null is rejected is approximately equal to the true value of mu because when the null is rejected that means the estimate is closer to the true mu, except for lower mu values.
