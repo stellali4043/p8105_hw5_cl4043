@@ -73,6 +73,27 @@ results_df %>%
 
 ## Problem 2
 
+```{r, message = FALSE}
+path_df = 
+  tibble(
+    path = list.files("lda_data"),) %>%
+  mutate(
+    path = str_c("lda_data/", path),
+    data = map(path, read_csv)) %>%
+  unnest(data) %>%
+  mutate(group = substr(path, 20, 22), id = substr(path, 24, 25), id = str_c(group, id)) %>%
+  select(-path) %>%
+  pivot_longer(week_1:week_8, names_to = "week", names_prefix = "week_", values_to = "obs") %>%
+  mutate(week = as.factor(week), id = as.factor(id))%>% group_by(id)
+path_df %>%
+  ggplot(aes(x = week, y = obs, group = id, color = group)) +
+  geom_line() +
+  labs(
+    title = "Observations for Each Subject Over 8 Weeks",
+    x = "Week Number",
+    y = "Observation Value")
+
+```
 
 
 ## Problem 3
