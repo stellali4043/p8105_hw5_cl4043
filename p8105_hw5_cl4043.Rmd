@@ -13,6 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(purrr)
 library(stringr)
+library(patchwork)
 ```
 
 ## Problem 1
@@ -129,9 +130,25 @@ sim_results %>%
   ggplot(aes(x = mu, y = prop_reject)) +
   geom_line() +
   labs(
-    title = "Proportion of Times the Null was Rejected for Each mu",
+    title = "Proportion of times the Null was rejected for each mu",
     x = "mu",
-    y = "Proportion of Times the Null was Rejected")
+    y = "Proportion of times the Null was rejected")
 ```
 As the effect size increases, the power increases. The difference between the null mu (0) and the actual mu increases, the power also increases, and as we can see from the results, the difference between the null mu and the actual mu increases.
 
+```{r}
+avg_results <- sim_results %>% 
+  group_by(mu) %>%
+  summarize(mean_mu_hat = mean(estimate)) %>%
+  ggplot(aes(x = mu, y = mean_mu_hat)) +
+  geom_boxplot() 
+
+avg_rejected_results <- sim_results %>% 
+  filter(reject_null == 1) %>%
+  group_by(mu) %>%
+  summarize(mean_mu_hat = mean(estimate)) %>%
+  ggplot(aes(x = mu, y = mean_mu_hat)) +
+  geom_boxplot() 
+
+avg_results + avg_rejected_results
+```
