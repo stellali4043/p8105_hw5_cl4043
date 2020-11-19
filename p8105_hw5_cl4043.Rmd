@@ -141,14 +141,18 @@ avg_results <- sim_results %>%
   group_by(mu) %>%
   summarize(mean_mu_hat = mean(estimate)) %>%
   ggplot(aes(x = mu, y = mean_mu_hat)) +
-  geom_boxplot() 
+  geom_boxplot() +
+  labs(
+    x = "avg_results")
 
 avg_rejected_results <- sim_results %>% 
   filter(reject_null == 1) %>%
   group_by(mu) %>%
   summarize(mean_mu_hat = mean(estimate)) %>%
   ggplot(aes(x = mu, y = mean_mu_hat)) +
-  geom_boxplot() 
+  geom_boxplot() +
+  labs(
+    x = "avg_rejected_results")
 
 avg_results + avg_rejected_results
 ```
